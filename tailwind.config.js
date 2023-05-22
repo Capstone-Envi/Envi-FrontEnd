@@ -9,6 +9,7 @@ export default {
     colors: {
       white: '#FFFFFF',
       black: '#000000',
+      grey:'#696969',
       primary: {
         100: '#f1f2fd',
         200: '#cacdf8',
@@ -227,6 +228,15 @@ export default {
         l: '0.5rem',
         xl: '0.75rem',
         '100-percent': '100%'
+      },
+      borderWidth: {
+        DEFAULT: '1px',
+        '0': '0.5px',
+        '2': '2px',
+        '3': '3px',
+        '4': '4px',
+        '6': '6px',
+        '8': '8px',
       },
       boxShadow: {
         xs: '0px 0px 1px rgba(23, 26, 31, 0.15), 0px 0px 2px rgba(23, 26, 31, 0.2)',
