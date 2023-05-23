@@ -1,35 +1,53 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Navigate, Route, RouteProps, Routes } from 'react-router-dom'
 import './App.css'
+import { Login } from './pages/authentication/Login/Login'
+import { Register } from './pages/authentication/Register/Register'
+// import { Header } from './components/Header/Header'
+// import { Register } from './pages/authentication/Register/Register'
+
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {/* <Header/> */}
+      <Routes>
+        <Route path='/login' element= {<Login/>} />
+        <Route path='/register' element= {<Register/>} />
+      </Routes>
+      {/* <Login /> */}
     </>
   )
 }
 
 export default App
+
+/* istanbul ignore next */
+function GuestOnlyRoute({
+  children,
+  userIsLogged,
+  ...rest
+}: { children: JSX.Element | JSX.Element[]; userIsLogged: boolean } & RouteProps) {
+  return (
+    <Route {...rest}>
+      {children}
+      {userIsLogged && <Navigate to='/' />}
+    </Route>
+  );
+}
+
+/* istanbul ignore next */
+function UserOnlyRoute({
+  children,
+  userIsLogged,
+  ...rest
+}: { children: JSX.Element | JSX.Element[]; userIsLogged: boolean } & RouteProps) {
+  return (
+    <Route {...rest}>
+      {children}
+      {!userIsLogged && <Navigate to='/' />}
+    </Route>
+  );
+}
