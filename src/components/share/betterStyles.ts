@@ -9,6 +9,9 @@ const betterInput = {
                 }
             },
         },
+        '& input': {
+            fontFamily: 'Poppins',
+        },
         '&:hover fieldset': {
             borderColor: '#B4BECF', // - Set the Input border when parent has :hover
         },
@@ -22,6 +25,9 @@ const betterInput = {
     '& label.Mui-focused': {
         color: '#8792AB',
     },
+    '& .MuiFormHelperText-root': {
+        fontFamily: 'Poppins'
+    }
 }
 
 export default betterInput

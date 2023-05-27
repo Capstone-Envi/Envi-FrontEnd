@@ -1,11 +1,13 @@
 import { Box, Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 import * as yup from 'yup';
 import background from "../../../assets/background.svg";
 import appLogo from '../../../assets/logo.svg';
 import betterInput from "../../../components/share/betterStyles";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { register } from "../../../redux/slices/currentUser/currentUserAction";
 
 interface RegisterFormValues {
     firstName: string;
@@ -47,13 +49,23 @@ const validationSchema = yup.object({
 
 
 export function Register() {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const error = useAppSelector((state) => state.currentUser.error);
     const betterRegisterInput = betterInput;
-    
+
     const formik = useFormik({
         initialValues: initialValue,
         validationSchema: validationSchema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            dispatch(register({ ...values }))
+                .then((response) => {
+                    // Check if register was successful
+                    if (response.payload) {
+                        // Redirect to another page
+                        navigate("/dashboard");
+                    }
+                });
         },
     });
 
@@ -131,6 +143,11 @@ export function Register() {
                         error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
                         helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
                     />
+                    {error && (
+                        <ErrorMessage>
+                            {error}
+                        </ErrorMessage>
+                    )}
                 </OtherInput>
                 <Button variant="contained"
                     sx={{
@@ -140,10 +157,15 @@ export function Register() {
                         fontFamily: 'Poppins',
                         textTransform: 'none',
                         marginTop: '10px',
+                        ':hover': {
+                            backgroundColor: '#3a45e4'
+                        }
                     }}
                     size='large'
                     type="submit"
-                >Sign up</Button>
+                >
+                    Sign up
+                </Button>
                 <div className="text-center w-full mt-8">
                     <p className="text-black">
                         Already have an account?{' '}
@@ -156,6 +178,11 @@ export function Register() {
         </RegisterContainer>
     );
 }
+
+const ErrorMessage = styled.div`
+    color: #de3b40;
+    padding: 0 16px;
+`
 
 const EnviLogo = styled.img`
     padding: 27.83px;

@@ -1,10 +1,26 @@
 import { Icon } from '@iconify/react';
 import { Stack } from '@mui/material';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled } from "styled-components";
 import appLogo from '../../assets/logo.svg';
+import { useAppSelector } from '../../redux/hooks';
 import { CusNavItem } from './CusNavItem';
 
 export function Header() {
+    const currentUser = useAppSelector((state) => state.currentUser.currentUser);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if the user is already logged in
+        // If logged in, redirect to another page (e.g., "/dashboard")
+        const isLoggedIn = currentUser !== null// Logic to check if the user is logged in
+
+        if (!isLoggedIn) {
+            navigate("/login");
+        }
+    }, [navigate]);
+
     return (
         <HeaderNavigation>
             <Nav>

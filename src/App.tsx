@@ -1,21 +1,18 @@
-import { useState } from 'react'
 import { Navigate, Route, RouteProps, Routes } from 'react-router-dom'
 import './App.css'
+import { Dashboard } from './pages/Dashboard/dashboard'
 import { Login } from './pages/authentication/Login/Login'
 import { Register } from './pages/authentication/Register/Register'
-// import { Header } from './components/Header/Header'
-// import { Register } from './pages/authentication/Register/Register'
 
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
       {/* <Header/> */}
       <Routes>
         <Route path='/login' element= {<Login/>} />
         <Route path='/register' element= {<Register/>} />
+        <Route path='/dashboard' element= {<Dashboard/>} />
       </Routes>
       {/* <Login /> */}
     </>
