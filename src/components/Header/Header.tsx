@@ -1,6 +1,16 @@
-import { Icon } from '@iconify/react';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Stack } from '@mui/material';
-import { useEffect } from 'react';
+import Badge from '@mui/material/Badge';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Grow from '@mui/material/Grow';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled } from "styled-components";
 import appLogo from '../../assets/logo.svg';
@@ -10,6 +20,42 @@ import { CusNavItem } from './CusNavItem';
 export function Header() {
     const currentUser = useAppSelector((state) => state.currentUser.currentUser);
     const navigate = useNavigate();
+    const [open, setOpen] = React.useState(false);
+    const anchorRef = React.useRef<HTMLButtonElement>(null);
+
+    const handleToggle = () => {
+        setOpen((prevOpen) => !prevOpen);
+    };
+
+    const handleClose = (event: Event | React.SyntheticEvent) => {
+        if (
+            anchorRef.current &&
+            anchorRef.current.contains(event.target as HTMLElement)
+        ) {
+            return;
+        }
+
+        setOpen(false);
+    };
+
+    function handleListKeyDown(event: React.KeyboardEvent) {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            setOpen(false);
+        } else if (event.key === 'Escape') {
+            setOpen(false);
+        }
+    }
+
+    // return focus to the button when we transitioned from !open -> open
+    const prevOpen = React.useRef(open);
+    React.useEffect(() => {
+        if (prevOpen.current === true && open === false) {
+            anchorRef.current!.focus();
+        }
+
+        prevOpen.current = open;
+    }, [open]);
 
     useEffect(() => {
         // Check if the user is already logged in
@@ -23,28 +69,93 @@ export function Header() {
 
     return (
         <HeaderNavigation>
-            <Nav>
-                <img src={appLogo} className="appLogo" alt="Envi logo" />
-                <Stack direction='row'>
-                    <CusNavItem text='LoRa' />
-                    <CusNavItem text='User' />
-                </Stack>
-            </Nav>
-            <Avatar>
-                <Icon icon="ic:baseline-notifications" fontSize={25} color='#979797' />
-                <NameMenuContainer>
-                    <Name>Name</Name>
-                    <Icon icon="ic:baseline-arrow-drop-down" fontSize={20} color='#565D6D' />
-                </NameMenuContainer>
-            </Avatar>
+            <img src={appLogo} className="appLogo" alt="Envi logo" />
+            <Stack direction='row'>
+                <CusNavItem text='LoRa' />
+                <CusNavItem text='User' />
+            </Stack>
+            <Box sx={{
+                display: { xs: 'none', md: 'flex' },
+            }}>
+                <IconButton
+                    size="large"
+                    aria-label="show 17 new notifications"
+                    sx={{
+                        color: "#979797",
+                        marginRight: '10px'
+                    }}
+                >
+                    <Badge badgeContent={17} color="error">
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
+                <div>
+                    <Button
+                        ref={anchorRef}
+                        id="composition-button"
+                        aria-controls={open ? 'composition-menu' : undefined}
+                        aria-expanded={open ? 'true' : undefined}
+                        aria-haspopup="true"
+                        onClick={handleToggle}
+                        sx={{
+                            height: '100%',
+                            fontFamily: 'Poppins',
+                            textTransform: 'none',
+                            color: '#171a1f',
+                            borderRadius: '0px'
+                        }}
+                    >
+                        Thinh Dinh
+                    </Button>
+                    <Popper
+                        open={open}
+                        anchorEl={anchorRef.current}
+                        role={undefined}
+                        placement="bottom-end"
+                        transition
+                        disablePortal
+                    >
+                        {({ TransitionProps, placement }) => (
+                            <Grow
+                                {...TransitionProps}
+                                style={{
+                                    transformOrigin:
+                                        placement === 'bottom-start' ? 'right top' : 'right bottom',
+                                }}
+                            >
+                                <Paper sx={{
+                                    borderTopLeftRadius: '0px',
+                                    borderTopRightRadius: '0px'
+                                }}>
+                                    <ClickAwayListener onClickAway={handleClose}>
+                                        <MenuList
+                                            autoFocusItem={open}
+                                            id="composition-menu"
+                                            aria-labelledby="composition-button"
+                                            onKeyDown={handleListKeyDown}
+                                        >
+                                            <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={handleClose}>Profile</MenuItem>
+                                            <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={handleClose}>Logout</MenuItem>
+                                        </MenuList>
+                                    </ClickAwayListener>
+                                </Paper>
+                            </Grow>
+                        )}
+                    </Popper>
+                </div>
+            </Box>
         </HeaderNavigation>
     );
 }
 
 const HeaderNavigation = styled.nav`
+    background-color: #FFFFFF;
+    position: fixed;
+    top: 0;
     height: 56px;
     width: 100%;
     display: flex;
+    justify-content: space-between;
     box-shadow: 
         0 0 1px 0 rgba(23, 26, 31, 0.5),
         0 0 2px 0 rgba(23, 26, 31, 0.5);
@@ -55,24 +166,3 @@ const Nav = styled.div`
     display: flex;
     justify-content: space-between;
 `
-
-const NameMenuContainer = styled.div`
-    display: flex;
-`
-
-const Name = styled.p`
-    margin-right: 5px;
-    margin-left: 5px;
-    color: #565D6D;
-    font-size: 14px;
-`
-
-const Avatar = styled.div`
-    height: 100%;
-    width: 10vw;
-    border-left: 1px solid #d9d9d9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
-

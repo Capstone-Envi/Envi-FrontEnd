@@ -254,3 +254,5 @@ const GetStartedSubHeading = styled.h6`
     padding: 0 200px;
     color: #FFFFFF;
 `
+
+

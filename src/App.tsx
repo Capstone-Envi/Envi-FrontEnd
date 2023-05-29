@@ -1,6 +1,6 @@
 import { Navigate, Route, RouteProps, Routes } from 'react-router-dom'
 import './App.css'
-import { Dashboard } from './pages/Dashboard/dashboard'
+import { Dashboard } from './pages/Dashboard/Dashboard'
 import { Login } from './pages/authentication/Login/Login'
 import { Register } from './pages/authentication/Register/Register'
 
@@ -8,13 +8,11 @@ import { Register } from './pages/authentication/Register/Register'
 function App() {
   return (
     <>
-      {/* <Header/> */}
       <Routes>
         <Route path='/login' element= {<Login/>} />
         <Route path='/register' element= {<Register/>} />
         <Route path='/dashboard' element= {<Dashboard/>} />
       </Routes>
-      {/* <Login /> */}
     </>
   )
 }
