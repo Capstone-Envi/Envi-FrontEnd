@@ -25,11 +25,9 @@ const initialValue: LoginFormValues = {
 const validationSchema = yup.object({
     email: yup
         .string()
-        .email('Enter a valid email')
-        .required('Required'),
+        .email('Enter a valid email'),
     password: yup
-        .string()
-        .required('Required'),
+        .string(),
 });
 
 export function Login() {

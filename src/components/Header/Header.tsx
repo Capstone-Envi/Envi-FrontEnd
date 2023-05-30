@@ -150,6 +150,7 @@ export function Header() {
 
 const HeaderNavigation = styled.nav`
     background-color: #FFFFFF;
+    z-index: 100;
     position: fixed;
     top: 0;
     height: 56px;

@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { User } from "../../../utils/types";
 import { login, register } from "./currentUserAction";
 
-interface CurrentUserState {
+export interface CurrentUserState {
   currentUser: User | null;
   loading: boolean;
   error: string | null | undefined;
@@ -16,7 +16,7 @@ const initialState: CurrentUserState = {
 
 // Load the state from localStorage if available
 const storedState = localStorage.getItem('currentUserState');
-const persistedState = storedState ? JSON.parse(storedState) : initialState;
+const persistedState: CurrentUserState = storedState ? JSON.parse(storedState) : initialState;
 
 const currentUserSlice = createSlice({
   name: 'currentUser',

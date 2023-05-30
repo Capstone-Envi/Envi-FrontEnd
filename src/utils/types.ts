@@ -7,5 +7,12 @@ export interface User {
     phone: string | null;
     address: string | null;
     dateOfBirth: Date | null;
-    token: string | null;
+    token: string;
+    role: string;
+    isDeleted: boolean;
+}
+
+export interface PaginatedResponse<T> {
+    count: number
+    data: T[]
 }
