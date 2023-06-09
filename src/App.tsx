@@ -1,50 +1,70 @@
-import { Navigate, Route, RouteProps, Routes } from 'react-router-dom'
-import './App.css'
-import { Dashboard } from './pages/Dashboard/Dashboard'
-import { UserManagement } from './pages/UserManagement/UserManagement'
-import { Login } from './pages/authentication/Login/Login'
-import { Register } from './pages/authentication/Register/Register'
+import { Suspense } from 'react';
+import DefaultLayout from './share/layouts/DefaultLayout';
 
+import { publicRoutes, privateRoutes } from './router';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import Loading from './share/loading/Loading';
+import ScrollToTop from './utils/scrollToTop';
+import { RouteProps } from './utils/interface';
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path='/login' element= {<Login/>} />
-        <Route path='/register' element= {<Register/>} />
-        <Route path='/dashboard' element= {<Dashboard/>} />
-        <Route path='/users' element= {<UserManagement/>} />
-      </Routes>
-    </>
-  )
-}
+    <Router>
+      <ScrollToTop>
+        <Suspense fallback={<Loading />}>
+          <div>
+            <Routes>
+              {publicRoutes.map((route: RouteProps, index) => {
+                let Layout = DefaultLayout;
+                if (route.layout) {
+                  Layout = route.layout;
+                } else if (route.layout === null) {
+                  Layout = DefaultLayout;
+                }
 
-export default App
+                const Page = route.component;
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={
+                      <Layout>
+                        <Page title={route.title} />
+                      </Layout>
+                    }
+                  />
+                );
+              })}
 
-/* istanbul ignore next */
-function GuestOnlyRoute({
-  children,
-  userIsLogged,
-  ...rest
-}: { children: JSX.Element | JSX.Element[]; userIsLogged: boolean } & RouteProps) {
-  return (
-    <Route {...rest}>
-      {children}
-      {userIsLogged && <Navigate to='/' />}
-    </Route>
+              {privateRoutes.map((route: RouteProps, index) => {
+                let Layout = DefaultLayout;
+                if (route.layout) {
+                  Layout = route.layout;
+                } else if (route.layout === null) {
+                  // Layout = Fragment;
+                  Layout = DefaultLayout;
+                }
+
+                const Page = route.component;
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={
+                      <Layout>
+                        <Page title={route.title} />
+                      </Layout>
+                    }
+                  />
+                );
+              })}
+            </Routes>
+          </div>
+        </Suspense>
+      </ScrollToTop>
+    </Router>
   );
 }
 
-/* istanbul ignore next */
-function UserOnlyRoute({
-  children,
-  userIsLogged,
-  ...rest
-}: { children: JSX.Element | JSX.Element[]; userIsLogged: boolean } & RouteProps) {
-  return (
-    <Route {...rest}>
-      {children}
-      {!userIsLogged && <Navigate to='/' />}
-    </Route>
-  );
-}
+export default App;
