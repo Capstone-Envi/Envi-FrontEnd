@@ -7,9 +7,9 @@ import { styled } from "styled-components";
 import * as yup from 'yup';
 import background from "../../../assets/background.svg";
 import appLogo from '../../../assets/logo.svg';
-import betterInput from "../../../components/share/betterStyles";
+import { betterInput } from "../../../components/share/betterStyles";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { login } from "../../../redux/slices/currentUser/currentUserAction";
+import { login, resetCurrentUser } from "../../../redux/slices/currentUser/currentUserAction";
 
 
 interface LoginFormValues {
@@ -31,10 +31,11 @@ const validationSchema = yup.object({
 });
 
 export function Login() {
+
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const loading = useAppSelector((state) => state.currentUser.loading);
-    const error = useAppSelector((state) => state.currentUser.error);
+    const error = useAppSelector((state) => state.currentUser.loginError);
     const currentUser = useAppSelector((state) => state.currentUser.currentUser);
     const betterLoginInput = betterInput;
 
@@ -46,6 +47,8 @@ export function Login() {
         if (isLoggedIn) {
             navigate("/dashboard");
         }
+
+        dispatch(resetCurrentUser());
     }, [navigate]);
 
     const formik = useFormik({

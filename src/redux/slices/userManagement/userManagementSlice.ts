@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { User } from "../../../utils/types";
-import { getUsers } from "./userManagementAction";
+import { createAccount, getUsers } from "./userManagementAction";
 
 interface UserManagementState {
   users: User[] | null;
@@ -17,7 +17,7 @@ const initialState = {
 
 // Load the state from localStorage if available
 const storedState = localStorage.getItem('userManagementState');
-const persistedState : UserManagementState = storedState ? JSON.parse(storedState) : initialState;
+const persistedState: UserManagementState = storedState ? JSON.parse(storedState) : initialState;
 
 const userManagementSlice = createSlice({
   name: 'userManagement',
@@ -38,6 +38,12 @@ const userManagementSlice = createSlice({
       .addCase(getUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(createAccount.pending, (state) => {
+      })
+      .addCase(createAccount.fulfilled, (state) => {
+      })
+      .addCase(createAccount.rejected, (state) => {
       })
   },
 });

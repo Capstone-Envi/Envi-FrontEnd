@@ -10,15 +10,18 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled } from "styled-components";
 import appLogo from '../../assets/logo.svg';
-import { useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { logout } from '../../redux/slices/currentUser/currentUserAction';
+import { CusButton } from './CusButton';
 import { CusNavItem } from './CusNavItem';
 
 export function Header() {
     const currentUser = useAppSelector((state) => state.currentUser.currentUser);
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLButtonElement>(null);
@@ -26,6 +29,11 @@ export function Header() {
     const handleToggle = () => {
         setOpen((prevOpen) => !prevOpen);
     };
+
+    const onClickLogout = (event: Event | React.SyntheticEvent) => {
+        dispatch(logout())
+        // handleClose(event);
+    }
 
     const handleClose = (event: Event | React.SyntheticEvent) => {
         if (
@@ -57,93 +65,95 @@ export function Header() {
         prevOpen.current = open;
     }, [open]);
 
-    useEffect(() => {
-        // Check if the user is already logged in
-        // If logged in, redirect to another page (e.g., "/dashboard")
-        const isLoggedIn = currentUser !== null// Logic to check if the user is logged in
-
-        if (!isLoggedIn) {
-            navigate("/login");
-        }
-    }, [navigate]);
-
     return (
         <HeaderNavigation>
             <img src={appLogo} className="appLogo" alt="Envi logo" />
-            <Stack direction='row'>
-                <CusNavItem text='LoRa' />
-                <CusNavItem text='User' />
-            </Stack>
-            <Box sx={{
-                display: { xs: 'none', md: 'flex' },
-            }}>
-                <IconButton
-                    size="large"
-                    aria-label="show 17 new notifications"
-                    sx={{
-                        color: "#979797",
-                        marginRight: '10px'
-                    }}
-                >
-                    <Badge badgeContent={17} color="error">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
-                <div>
-                    <Button
-                        ref={anchorRef}
-                        id="composition-button"
-                        aria-controls={open ? 'composition-menu' : undefined}
-                        aria-expanded={open ? 'true' : undefined}
-                        aria-haspopup="true"
-                        onClick={handleToggle}
-                        sx={{
-                            height: '100%',
-                            fontFamily: 'Poppins',
-                            textTransform: 'none',
-                            color: '#171a1f',
-                            borderRadius: '0px'
-                        }}
-                    >
-                        Thinh Dinh
-                    </Button>
-                    <Popper
-                        open={open}
-                        anchorEl={anchorRef.current}
-                        role={undefined}
-                        placement="bottom-end"
-                        transition
-                        disablePortal
-                    >
-                        {({ TransitionProps, placement }) => (
-                            <Grow
-                                {...TransitionProps}
-                                style={{
-                                    transformOrigin:
-                                        placement === 'bottom-start' ? 'right top' : 'right bottom',
+
+            {!currentUser ? (
+                <Stack direction='row'>
+                    <CusButton size='large' text='Login' to='/login' isOutlined={false} />
+                    <CusButton size='large' text='Register' to='/register' isOutlined={true} />
+                </Stack>
+            ) : (
+                <>
+                    <Stack direction='row'>
+                        <CusNavItem text='LoRa' to='/dashboard' />
+                        <CusNavItem text='User' to='/users' />
+                    </Stack>
+                    <Box sx={{
+                        display: { xs: 'none', md: 'flex' },
+                    }}>
+                        <IconButton
+                            size="large"
+                            aria-label="show 17 new notifications"
+                            sx={{
+                                color: "#979797",
+                                marginRight: '10px'
+                            }}
+                        >
+                            <Badge badgeContent={17} color="error">
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                        <div>
+                            <Button
+                                ref={anchorRef}
+                                id="composition-button"
+                                aria-controls={open ? 'composition-menu' : undefined}
+                                aria-expanded={open ? 'true' : undefined}
+                                aria-haspopup="true"
+                                onClick={handleToggle}
+                                sx={{
+                                    height: '100%',
+                                    fontFamily: 'Poppins',
+                                    textTransform: 'none',
+                                    color: '#171a1f',
+                                    borderRadius: '0px'
                                 }}
                             >
-                                <Paper sx={{
-                                    borderTopLeftRadius: '0px',
-                                    borderTopRightRadius: '0px'
-                                }}>
-                                    <ClickAwayListener onClickAway={handleClose}>
-                                        <MenuList
-                                            autoFocusItem={open}
-                                            id="composition-menu"
-                                            aria-labelledby="composition-button"
-                                            onKeyDown={handleListKeyDown}
-                                        >
-                                            <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={handleClose}>Profile</MenuItem>
-                                            <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={handleClose}>Logout</MenuItem>
-                                        </MenuList>
-                                    </ClickAwayListener>
-                                </Paper>
-                            </Grow>
-                        )}
-                    </Popper>
-                </div>
-            </Box>
+                                {currentUser?.firstName + ' ' + currentUser?.lastName}
+                            </Button>
+                            <Popper
+                                open={open}
+                                anchorEl={anchorRef.current}
+                                role={undefined}
+                                placement="bottom-end"
+                                transition
+                                disablePortal
+                            >
+                                {({ TransitionProps, placement }) => (
+                                    <Grow
+                                        {...TransitionProps}
+                                        style={{
+                                            transformOrigin:
+                                                placement === 'bottom-start' ? 'right top' : 'right bottom',
+                                        }}
+                                    >
+                                        <Paper sx={{
+                                            borderTopLeftRadius: '0px',
+                                            borderTopRightRadius: '0px'
+                                        }}>
+                                            <ClickAwayListener onClickAway={handleClose}>
+                                                <MenuList
+                                                    autoFocusItem={open}
+                                                    id="composition-menu"
+                                                    aria-labelledby="composition-button"
+                                                    onKeyDown={handleListKeyDown}
+                                                >
+                                                    <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={handleClose}>Profile</MenuItem>
+                                                    <MenuItem sx={{ fontFamily: 'Poppins' }} onClick={onClickLogout}>Logout</MenuItem>
+                                                </MenuList>
+                                            </ClickAwayListener>
+                                        </Paper>
+                                    </Grow>
+                                )}
+                            </Popper>
+                        </div>
+                    </Box>
+                </>
+            )}
+
+
         </HeaderNavigation>
     );
 }

@@ -5,7 +5,7 @@ import { styled } from "styled-components";
 import * as yup from 'yup';
 import background from "../../../assets/background.svg";
 import appLogo from '../../../assets/logo.svg';
-import betterInput from "../../../components/share/betterStyles";
+import { betterInput } from "../../../components/share/betterStyles";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { register } from "../../../redux/slices/currentUser/currentUserAction";
 
@@ -51,7 +51,7 @@ const validationSchema = yup.object({
 export function Register() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const error = useAppSelector((state) => state.currentUser.error);
+    const error = useAppSelector((state) => state.currentUser.registerError);
     const betterRegisterInput = betterInput;
 
     const formik = useFormik({

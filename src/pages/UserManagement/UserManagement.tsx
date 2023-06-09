@@ -1,4 +1,11 @@
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
+import { Button, InputAdornment, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -9,28 +16,290 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
+import dayjs from 'dayjs';
+import { useFormik } from "formik";
 import * as React from 'react';
 import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
+import * as yup from 'yup';
 import { Header } from '../../components/Header/Header';
+import { betterInput, betterSearchInput } from '../../components/share/betterStyles';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getUsers } from '../../redux/slices/userManagement/userManagementAction';
+import { createAccount, getUsers } from '../../redux/slices/userManagement/userManagementAction';
 import { User } from '../../utils/types';
 
+interface CreateFromValues {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phone: string;
+    address: string;
+}
+
+const initialValue: CreateFromValues = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+}
+
+const validationSchema = yup.object({
+    email: yup
+        .string()
+        .email('Enter a valid email')
+        .required('Required'),
+    password: yup
+        .string()
+        .min(8, '8 characters Required')
+        .required('Required'),
+    firstName: yup
+        .string()
+        .min(6, '6 Character Required')
+        .required('Required'),
+    lastName: yup
+        .string()
+        .min(6, '6 Character Required')
+        .required('Required'),
+    phone: yup
+        .string(),
+    address: yup
+        .string(),
+});
+
 export function UserManagement() {
+    const [open, setOpen] = React.useState(false);
+    const [error, setError] = React.useState(String);
+    const dispatch = useAppDispatch();
+    const betterDialogInput = betterInput;
+    const currentUser = useAppSelector((state) => state.currentUser.currentUser);
+
+    const formik = useFormik({
+        initialValues: initialValue,
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            const token = currentUser?.token
+            dispatch(
+                createAccount(
+                    {
+                        address: values.address,
+                        email: values.email,
+                        firstName: values.firstName,
+                        lastName: values.lastName,
+                        phone: values.phone,
+                        password: values.password,
+                    }
+                ))
+                .then((response) => {
+                    // Check if register was successful
+                    if (response.payload) {
+                        // Redirect to another page
+                    }
+                });
+        },
+    });
+
+    const startOfQ12022 = dayjs('2022-01-01T00:00:00.000');
+    const endOfQ12022 = dayjs('2022-03-31T23:59:59.999');
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSave = () => {
+        formik.handleSubmit();
+    };
+
     return (
         <>
             <Header />
             <UserManagementContainer>
-                <EnhancedTable />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'end',
+                    }}
+                >
+                    <Button variant="contained"
+                        startIcon={<AddIcon />}
+                        sx={{
+                            boxShadow: 'none',
+                            marginRight: '20px',
+                            backgroundColor: '#535CE8',
+                            fontFamily: 'Poppins',
+                            textTransform: 'none',
+                            ':hover': {
+                                backgroundColor: '#3a45e4'
+                            }
+                        }}
+                        onClick={handleClickOpen}
+                        size='medium'
+                    >New</Button>
+                    <Dialog open={open} onClose={handleClose}>
+                        <DialogTitle sx={{
+                            fontFamily: 'Poppins',
+                            fontWeight: '500',
+                            fontSize: '24px',
+                        }}>Create new account</DialogTitle>
+                        <DialogContent>
+                            <Box
+                                onSubmit={formik.handleSubmit}
+                                component="form"
+                                sx={{
+                                    '& .MuiTextField-root': { m: 1, marginBottom: 1, width: '200px' },
+                                    '& .other-input .MuiTextField-root': { width: '416px' },
+                                    ...betterDialogInput,
+                                }}
+                                autoComplete="off"
+                            >
+                                <NameInput>
+                                    <TextField
+                                        size="small"
+                                        id="firstName"
+                                        name="firstName"
+                                        label="First name"
+                                        value={formik.values.firstName}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                                        helperText={formik.touched.firstName && formik.errors.firstName}
+                                    />
+                                    <TextField
+                                        size="small"
+                                        id="lastName"
+                                        name="lastName"
+                                        label="Last name"
+                                        value={formik.values.lastName}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                                        helperText={formik.touched.lastName && formik.errors.lastName}
+                                    />
+                                </NameInput>
+                                <OtherInput className="other-input">
+                                    <TextField
+                                        size="small"
+                                        id="phone"
+                                        name="phone"
+                                        label="Phone number"
+                                        value={formik.values.phone}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.phone && Boolean(formik.errors.phone)}
+                                        helperText={formik.touched.phone && formik.errors.phone}
+                                    />
+                                    <TextField
+                                        size="small"
+                                        id="address"
+                                        name="address"
+                                        label="Address"
+                                        value={formik.values.address}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.address && Boolean(formik.errors.address)}
+                                        helperText={formik.touched.address && formik.errors.address}
+                                    />
+                                    <TextField
+                                        size="small"
+                                        id="email"
+                                        name="email"
+                                        label="Email"
+                                        value={formik.values.email}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.email && Boolean(formik.errors.email)}
+                                        helperText={formik.touched.email && formik.errors.email}
+                                    />
+                                    <TextField
+                                        autoComplete="new-password"
+                                        size="small"
+                                        id="password"
+                                        name="password"
+                                        label="Password"
+                                        type="password"
+                                        value={formik.values.password}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.password && Boolean(formik.errors.password)}
+                                        helperText={formik.touched.password && formik.errors.password}
+                                    />
+                                    {error && (
+                                        <ErrorMessage>
+                                            {error}
+                                        </ErrorMessage>
+                                    )}
+                                </OtherInput>
+                            </Box>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant="outlined"
+                                sx={{
+                                    margin: '12px 10px',
+                                    borderColor: '#535CE8',
+                                    color: '#535CE8',
+                                    fontFamily: 'Poppins',
+                                    textTransform: 'none',
+                                    ':hover': {
+                                        color: '#3a45e4',
+                                        borderColor: '#3a45e4'
+                                    }
+                                }}
+                                size='small'
+                                onClick={handleClose}
+                            >Cancel</Button>
+                            <Button variant="contained"
+                                sx={{
+                                    boxShadow: 'none',
+                                    margin: '12px 10px',
+                                    backgroundColor: '#535CE8',
+                                    fontFamily: 'Poppins',
+                                    textTransform: 'none',
+                                    ':hover': {
+                                        backgroundColor: '#3a45e4'
+                                    }
+                                }}
+                                size='small'
+                                onClick={handleSave}
+                            >Save</Button>
+                        </DialogActions>
+                    </Dialog>
+                    <TextField
+                        label='Search'
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start"><SearchIcon /></InputAdornment>
+                            ),
+                        }}
+                        size="small"
+                        sx={{
+                            ...betterSearchInput
+                        }}
+                    />
+                </Box>
+                <EnhancedTable currentUser={currentUser} />
             </UserManagementContainer>
         </>
     )
 }
 
+const ErrorMessage = styled.div`
+    color: #de3b40;
+    padding: 0 16px;
+`
+
+const NameInput = styled.div`
+    display: flex;
+`
+
+const OtherInput = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+
 const UserManagementContainer = styled.div`
-    margin-top: 56px;
+    padding: 20px;
+    padding-top: 60px;
 `
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -157,13 +426,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     );
 }
 
-export default function EnhancedTable() {
+export default function EnhancedTable({currentUser}: {currentUser: User | null}) {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const error = useAppSelector((state) => state.userManagement.error);
-    const loading = useAppSelector((state) => state.userManagement.loading);
     const users: User[] = useAppSelector((state) => state.userManagement.users) || [];
-    const currentUser = useAppSelector((state) => state.currentUser.currentUser);
+    // const currentUser = useAppSelector((state) => state.currentUser.currentUser);
     const [offset, setOffset] = React.useState(0);
     const [limit, setLimit] = React.useState(10);
 
@@ -235,7 +502,7 @@ export default function EnhancedTable() {
     );
 
     return (
-        <Box sx={{ width: '100%', padding: '20px' }}>
+        <Box sx={{ width: '100%', paddingTop: '20px' }}>
             <Paper sx={{ width: '100%', mb: 2, border: '1px solid #000000', boxShadow: 'none' }}>
                 <TableContainer>
                     <Table

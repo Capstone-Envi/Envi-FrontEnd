@@ -32,3 +32,23 @@ export const activation = createAsyncThunk(
         }
     }
 );
+
+export const createAccount = createAsyncThunk(
+    'user/',
+    async (
+        requestBody: {
+            email: string,
+            password: string,
+            firstName: string,
+            lastName: string,
+            address: string,
+            phone: string,
+        }) => {
+        try {
+            const response = await api.post<User>('/api/user/create', requestBody);
+            return response.data;
+        } catch (error) {
+            throw new Error((error as any).response.data.detail);
+        }
+    }
+);

@@ -1,17 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { User } from "../../../utils/types";
-import { login, register } from "./currentUserAction";
+import { login, logout, register, resetCurrentUser } from "./currentUserAction";
 
 export interface CurrentUserState {
   currentUser: User | null;
   loading: boolean;
-  error: string | null | undefined;
+  loginError: string | null | undefined;
+  registerError: string | null | undefined;
 }
 
 const initialState: CurrentUserState = {
   currentUser: null,
   loading: false,
-  error: null,
+  loginError: null,
+  registerError: null,
 };
 
 // Load the state from localStorage if available
@@ -26,7 +28,7 @@ const currentUserSlice = createSlice({
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.loginError = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
@@ -35,11 +37,11 @@ const currentUserSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.loginError = action.error.message;
       })
       .addCase(register.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.registerError = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
@@ -48,7 +50,21 @@ const currentUserSlice = createSlice({
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.registerError = action.error.message;
+      })
+      .addCase(logout, (state) => {
+        state.currentUser = null;
+        state.loading = false;
+        state.registerError = null;
+        state.loginError = null;
+        clearState(); 
+      })
+      .addCase(resetCurrentUser, (state) => {
+        state.currentUser = null;
+        state.loading = false;
+        state.registerError = null;
+        state.loginError = null;
+        clearState(); 
       });
   },
 });
@@ -60,6 +76,10 @@ const saveState = (state: CurrentUserState) => {
   } catch (error) {
 
   }
+};
+
+const clearState = () => {
+  localStorage.removeItem('currentUserState');
 };
 
 export default currentUserSlice.reducer;

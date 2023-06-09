@@ -6,7 +6,6 @@ export interface User {
     lastName: string | null;
     phone: string | null;
     address: string | null;
-    dateOfBirth: Date | null;
     token: string;
     role: string;
     isDeleted: boolean;
