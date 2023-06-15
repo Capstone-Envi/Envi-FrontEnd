@@ -41,7 +41,7 @@ const columns = [
     flex: 1,
     renderCell: (params: any) => (
       <div className="flex items-center gap-5">
-        <img className="rounded-full h-[30px] w-[30vpx] object-cover" src={params.row.picture || avatar} />
+        <img className="rounded-full h-[30px] w-[30vpx] object-cover" src={params.row.avatar || avatar} />
         <p className="font-bold">{params.row.name}</p>
       </div>
     ),
@@ -125,16 +125,18 @@ const DataTable: React.FC<Props> = (props) => {
         rowsPerPageOptions={[defaultValue.pageSize]}
         className="datagrid"
         getRowId={(row: any) => row.id}
-        // loading={props?.loading}
-        loading={false}
+        loading={props.loading}
         components={{
           LoadingOverlay: TableLoading,
           NoRowsOverlay: NoRowData,
         }}
-        onRowClick={(params) => props.handleOpenEdit(params.row)}
+        onRowDoubleClick={(params) => props.handleOpenEdit(params.row)}
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
             fontWeight: 700,
+          },
+          '&.MuiDataGrid-root .MuiDataGrid-cell:focus-within': {
+            outline: 'none !important',
           },
         }}
       />

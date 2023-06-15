@@ -1,24 +1,66 @@
 import Logo from 'src/share/Logo/Logo';
 import styles from 'src/utils/style';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'src/redux/store/hooks';
+import { setCurrentUser } from 'src/redux/slices/authSlice';
+import { setOpenDropDown } from 'src/redux/slices/contextSlice';
 
 // ** lib
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
 
 // ** assets
 import avatar from 'src/assets/images/avatar.svg';
 import dropDown from 'src/assets/images/drop_down.svg';
 import logout from 'src/assets/images/Logout.svg';
+import manage from 'src/assets/images/Stack.svg';
 
 const SystemNav = () => {
-  const [openDropDown, setOpenDropDown] = useState(false);
+  const accessToken = localStorage.getItem('accessToken');
+  let decoded_jwt: any = {};
+  if (accessToken) {
+    decoded_jwt = jwt_decode(accessToken);
+  }
+
+  // const [openDropDown, setOpenDropDown] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const context = useAppSelector((state) => state.context);
+
+  //**  Get shopping cart, set account info
+  useEffect(() => {
+    if (decoded_jwt) {
+      dispatch(setCurrentUser(decoded_jwt));
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     navigate('/login');
-    // dispatch(setAccountInfo({}));
+    dispatch(setOpenDropDown());
+  };
+
+  const handleNavigatePersonal = () => {
+    navigate(`/personal/${decoded_jwt.sub}`);
+    dispatch(setOpenDropDown());
+  };
+
+  const handleNavigateManage = (role: string) => {
+    dispatch(setOpenDropDown());
+    switch (role) {
+      case 'ADMIN':
+        navigate('/admin');
+        break;
+      case 'STAFF':
+        navigate('/nodes');
+        break;
+      case 'USER':
+        navigate('/');
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -32,25 +74,25 @@ const SystemNav = () => {
 
         <div className="relative">
           <div
-            onClick={() => setOpenDropDown((prev) => !prev)}
+            onClick={() => dispatch(setOpenDropDown())}
             className="pl-4 py-3 flex items-center gap-3 cursor-pointer select-none"
           >
             <div className="w-[30px] h-[30px]">
-              <img src={avatar} className="w-full object-contain" />
+              <img src={decoded_jwt.avatar ? decoded_jwt.avatar : avatar} className="w-full object-contain" />
             </div>
 
             <div className="flex items-center gap-2 ">
-              <p className="font-medium text-t3 text-[#565D6D]">Thinh Dinh</p>
+              <p className="font-medium text-t3 text-[#565D6D]">{decoded_jwt.firstName + ' ' + decoded_jwt.lastName}</p>
               <img
                 src={dropDown}
-                className={`w-[10px] h-[5px] object-contain transform ${openDropDown ? 'rotate-180' : ''} `}
+                className={`w-[10px] h-[5px] object-contain transform ${context.openDropDown ? 'rotate-180' : ''} `}
               />
             </div>
           </div>
 
           {/* dropdown */}
           <AnimatePresence>
-            {openDropDown && (
+            {context.openDropDown && (
               <motion.ul
                 initial={{ y: '50%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -58,9 +100,19 @@ const SystemNav = () => {
                 exit={{ y: '50%', opacity: 0 }}
                 className="absolute top-15 right-0 bg-white rounded-[10px] w-max drop-shadow-lg"
               >
-                <li className="flex items-center gap-3 px-5 py-3 cursor-pointer transition hover:bg-gray-100 rounded-tr-[10px] rounded-tl-[10px]">
+                <li
+                  onClick={() => handleNavigatePersonal()}
+                  className="flex items-center gap-3 px-5 py-3 cursor-pointer transition hover:bg-gray-100 rounded-tr-[10px] rounded-tl-[10px]"
+                >
                   <img src={avatar} className="w-[24px] h-[24px] object-contain" />
                   <p className="text-t3">Personal Information</p>
+                </li>
+                <li
+                  onClick={() => handleNavigateManage(decoded_jwt.role)}
+                  className="flex items-center gap-3 cursor-pointer px-5 py-3 transition hover:bg-gray-100"
+                >
+                  <img src={manage} className="w-[25px] h-[25px] object-contain" />
+                  <p className="text-t3">Manage</p>
                 </li>
                 <li
                   onClick={() => handleLogout()}

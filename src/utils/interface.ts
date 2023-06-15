@@ -24,6 +24,7 @@ export interface DetailModalProps {
   title: string;
   isModalDetail: boolean;
   userDetail: any;
+  setUpdateData: any;
 }
 
 export interface LoRaTypeProps {
@@ -41,9 +42,24 @@ export interface UsersProps {
   phone: string;
   isDeleted: boolean;
   role: string;
+  avatar: string;
 }
 
 export interface UserDetailProps extends UsersProps {
   dateOfBirth: string;
   address: string;
+  sub: string;
+}
+
+export interface UserDetailById extends UsersProps {
+  dateOfBirth: string;
+  address: string;
+}
+
+export interface ConfirmModalProps {
+  openModal: boolean;
+  setOpenModal: any;
+  description: string;
+  handleConfirm: any;
+  rowData: any;
 }
