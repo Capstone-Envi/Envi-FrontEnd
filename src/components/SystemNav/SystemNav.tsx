@@ -17,7 +17,7 @@ import logout from 'src/assets/images/Logout.svg';
 import manage from 'src/assets/images/Stack.svg';
 
 const SystemNav = () => {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = sessionStorage.getItem('accessToken');
   let decoded_jwt: any = {};
   if (accessToken) {
     decoded_jwt = jwt_decode(accessToken);
@@ -36,7 +36,7 @@ const SystemNav = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
+    sessionStorage.removeItem('accessToken');
     navigate('/login');
     dispatch(setOpenDropDown());
   };
@@ -77,8 +77,11 @@ const SystemNav = () => {
             onClick={() => dispatch(setOpenDropDown())}
             className="pl-4 py-3 flex items-center gap-3 cursor-pointer select-none"
           >
-            <div className="w-[30px] h-[30px]">
-              <img src={decoded_jwt.avatar ? decoded_jwt.avatar : avatar} className="w-full object-contain" />
+            <div className="">
+              <img
+                src={decoded_jwt.avatar ? decoded_jwt.avatar : avatar}
+                className="object-contain w-[30px] h-[30px] rounded-full"
+              />
             </div>
 
             <div className="flex items-center gap-2 ">
