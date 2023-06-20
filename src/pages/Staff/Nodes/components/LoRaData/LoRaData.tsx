@@ -86,12 +86,6 @@ const LoRaData = () => {
     }
   }, [updateData]);
 
-  // useEffect(() => {
-  //   dispatch(getSensors(params.id)).then((res: any) => {
-  //     setSensorList(res.payload.data);
-  //   });
-  // }, [updateData]);
-
   return (
     <div className="my-12">
       {/* header */}
