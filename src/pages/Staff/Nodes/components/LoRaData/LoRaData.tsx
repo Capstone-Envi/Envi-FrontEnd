@@ -87,7 +87,7 @@ const LoRaData = () => {
   }, [updateData]);
 
   return (
-    <div className="my-12">
+    <div className="my-12 mx-14">
       {/* header */}
       <div>
         <button
