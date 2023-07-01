@@ -43,6 +43,9 @@ export interface DetailModalProps {
 }
 
 export interface LoRaTypeProps {
+  setEditSensorData: any;
+  setOpenEditModal: any;
+  setUpdateData: any;
   sensorData: any;
   setSelectedSensorId: any;
   selectedSensorId: any;
@@ -85,7 +88,7 @@ export interface NodeProps {
   id: string;
   name: string;
   description: string;
-  nodeId: string;
+  nodeCode: string;
   createdDate: string;
   updatedDate: string;
 }
@@ -103,4 +106,6 @@ export interface SensorProps {
   location: string;
   createdDate: string;
   updatedDate: string;
+  nodeBelongName: string;
+  nodeBelongCode: string;
 }

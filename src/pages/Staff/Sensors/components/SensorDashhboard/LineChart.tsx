@@ -1,35 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
+import {
+  ChartData,
+  Chart as ChartJs,
+  ChartOptions,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  TimeScale,
+  Tooltip,
+} from 'chart.js';
 import 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
+import { Line } from 'react-chartjs-2';
+import { useAppDispatch } from 'src/redux/store/hooks';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
+import { useEffect, useState } from 'react';
+import { getSensorIntervalData } from 'src/redux/slices/loraDataSlice';
 
-const date = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const dp = [25, 26, 24, 30, 38, 33, 30];
-
-const mg = [33, 26, 20, 21, 26, 30, 32];
-
-const celsius = [33, 30, 25, 36, 31, 30, 32];
-
-const water = [27, 32, 25, 36, 31, 30, 28];
-
-const options = {
-  scales: {
-    x: {
-      grid: {
-        display: false,
-      },
-    },
-    y: {
-      grid: {
-        display: false,
-      },
-    },
-  },
-  interaction: {
-    intersect: false,
-  },
-};
+ChartJs.register(
+  LineElement,
+  TimeScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+)
 
 interface ChartProps {
   loRaData: any;
@@ -38,58 +36,82 @@ interface ChartProps {
 
 const LineChart: React.FC<ChartProps> = (props) => {
   const { loRaData, dataLabel } = props;
-  const [chartData, setChartData] = useState({
-    labels: date,
+  const [labels, setLabels] = useState([]);
+  const [datasets, setDatasets] = useState([]);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(getSensorIntervalData('326961e5-143b-4276-90a3-c4031462a09d')).then((res: any) => {
+        setLabels(res.payload.createTimestamp);
+        setDatasets(res.payload.data);
+      });
+    }
+    fetchData();
+
+    const handler = setInterval(() => {
+      fetchData();
+    }, 10000);
+    return () => clearInterval(handler);
+  }, []);
+
+  const data: ChartData<'line'> = {
+    labels: labels,
     datasets: [
       {
-        // label: dataLabel,
-        label: 'Temperature-S-2',
-        data: dp,
-        fill: false,
-        // backgroundColor: 'rgba(83,92,232,0.2)',
-        borderColor: '#535CE8',
-      },
-      {
-        label: 'Temperature-S-3',
-        data: mg,
-        borderColor: '#FFD5C3',
-      },
-      {
-        label: 'Temperature-S-4',
-        data: celsius,
-        borderColor: '#F84B01',
-      },
-      {
-        label: 'Temperature-S-5',
-        data: water,
-        borderColor: '#59DBDD',
+        label: "TEST",
+        data: datasets,
+        borderWidth: 1,
+        pointRadius: 1,
       },
     ],
-  });
+  };
 
-  // useEffect(() => {
-  //   setChartData({
-  //     labels: date,
-  //     datasets: [
-  //       {
-  //         label: dataLabel,
-  //         data: loRaData,
-  //         fill: true,
-  //         // backgroundColor: 'rgba(83,92,232,0.2)',
-  //         borderColor: '#535CE8',
-  //       },
-  //       // {
-  //       //   label: 'label2',
-  //       //   data: data2,
-  //       // },
-  //     ],
-  //   });
-  // }, [loRaData]);
+  const options: ChartOptions<"line"> = {
+    // animation: false,
+    normalized: true,
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        type: "time",
+        time: {
+          unit: 'day',
+        },
+        ticks: {
+          autoSkip: false,
+          maxTicksLimit: 10,
+          minRotation: 0,
+          maxRotation: 0,
+          sampleSize: 10,
+        },
+      },
+    },
+    // interaction: {
+    //   intersect: false,
+    // },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'right',
+        labels: {
+          boxHeight: 15,
+          boxWidth: 15,
+        }
+      },
+    },
+  };
 
   return (
-    <div>
-      <Line data={chartData} options={options} />
-    </div>
+    <>
+      <div className="border border-[#333333] p-4 w-[100%]">
+        <Line
+          data={data}
+          options={options}
+          style={{ maxWidth: '100%', height: '400px' }}
+        />
+      </div>
+    </>
   );
 };
 
