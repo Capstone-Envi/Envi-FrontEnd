@@ -8,17 +8,14 @@ import {
   LinearScale,
   PointElement,
   TimeScale,
-  Tooltip,
+  Tooltip
 } from 'chart.js';
 import 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 import { Line } from 'react-chartjs-2';
-import { useAppDispatch } from 'src/redux/store/hooks';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
-import { useEffect, useState } from 'react';
-import { getSensorIntervalData } from 'src/redux/slices/loraDataSlice';
 
 ChartJs.register(
   LineElement,
@@ -26,45 +23,27 @@ ChartJs.register(
   LinearScale,
   PointElement,
   Tooltip,
-  Legend,
+  Legend
 )
 
 interface ChartProps {
-  loRaData: any;
-  dataLabel: string;
+  datasets: Map<string, { data: number[], createTimestamp: string[] }>;
 }
 
 const LineChart: React.FC<ChartProps> = (props) => {
-  const { loRaData, dataLabel } = props;
-  const [labels, setLabels] = useState([]);
-  const [datasets, setDatasets] = useState([]);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      dispatch(getSensorIntervalData('326961e5-143b-4276-90a3-c4031462a09d')).then((res: any) => {
-        setLabels(res.payload.createTimestamp);
-        setDatasets(res.payload.data);
-      });
-    }
-    fetchData();
-
-    const handler = setInterval(() => {
-      fetchData();
-    }, 10000);
-    return () => clearInterval(handler);
-  }, []);
+  const { datasets } = props;
 
   const data: ChartData<'line'> = {
-    labels: labels,
-    datasets: [
-      {
-        label: "TEST",
-        data: datasets,
-        borderWidth: 1,
-        pointRadius: 1,
-      },
-    ],
+    // labels: labels,
+    datasets: Object.entries(datasets).map(([key, value]): any => ({
+      label: key.toString(),
+      data: value.data.map((dataPoint: any, index: number) => ({
+        x: new Date(value.createTimestamp[index]).getTime(),
+        y: dataPoint,
+      })),
+      borderWidth: 1,
+      pointRadius: 1,
+    })),
   };
 
   const options: ChartOptions<"line"> = {

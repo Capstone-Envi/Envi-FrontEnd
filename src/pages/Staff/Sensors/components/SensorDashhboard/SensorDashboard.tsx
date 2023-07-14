@@ -7,13 +7,13 @@ import SensorList from './SensorList';
 
 const SensorDashboard = () => {
   const currentUser = useAppSelector((state) => state.auth.currentUser);
-  const [chartData, setChartData] = useState<any>([]);
   const [sensorList, setSensorList] = useState([]);
+  const [datasets, setDatasets] = useState<Map<string, { data: number[], createTimestamp: string[] }>>(new Map<string, { data: number[], createTimestamp: string[] }>());
+
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(getAllSensors()).then((res: any) => {
       const sensorList = res.payload.data;
-      console.log(sensorList);
       setSensorList(sensorList);
     });
   }, []);
@@ -23,10 +23,15 @@ const SensorDashboard = () => {
       {/* body */}
       <div className="w-full flex items-center justify-between my-7">
         {/* chart */}
-        <LineChart dataLabel={'sensor 1'} loRaData={chartData} />
+        <LineChart
+          datasets={datasets}
+        />
       </div>
       {/* filter */}
-      <Filter />
+      <Filter
+        datasets={datasets}
+        setDatasets={setDatasets}
+      />
       {/* sensor list */}
       <SensorList
         currentUser={currentUser}

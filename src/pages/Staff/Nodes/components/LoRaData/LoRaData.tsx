@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 //** components */
 import { useParams } from 'react-router-dom';
-import { getSensors } from 'src/redux/slices/loraDataSlice';
+import { getNodeAlertList, getSensors } from 'src/redux/slices/loraDataSlice';
 import { getNode } from 'src/redux/slices/nodeSlice';
 import { useAppDispatch, useAppSelector } from 'src/redux/store/hooks';
 import { SensorProps } from 'src/utils/interface';
@@ -16,11 +16,15 @@ import plus from 'src/assets/images/plus_white.svg';
 const LoRaData = () => {
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [sensorList, setSensorList] = useState([]);
+  const [alertList, setAlertList] = useState([]);
   const [updateData, setUpdateData] = useState(false);
   const [editSensorData, setEditSensorData] = useState();
   const [nodeName, setNodeName] = useState();
   const [selectedSensorId, setSelectedSensorId] = useState('');
   const [openModal, setOpenModal] = useState(false);
+  const [min, setMin] = useState(0);
+  const [max, setMax] = useState(0);
+  const [avg, setAvg] = useState(0);
   const params = useParams();
   const nodeId = params.id;
   const dispatch = useAppDispatch();
@@ -33,6 +37,11 @@ const LoRaData = () => {
         if (sensorList.length >= 1) {
           setSelectedSensorId(sensorList[0].id);
         }
+      });
+
+      dispatch(getNodeAlertList(nodeId)).then((res: any) => {
+        const alertList = res.payload.data;
+        setAlertList(alertList);
       });
     }
   }, [updateData]);
@@ -55,20 +64,25 @@ const LoRaData = () => {
       <div className="w-full flex flex-col items-center justify-center my-7">
         {/* chart */}
         <div className="sm:w-[95%] w-[100%] border-[#333333] border rounded p-4">
-          <LineChart selectedSensorId={selectedSensorId} />
+          <LineChart
+            selectedSensorId={selectedSensorId}
+            setMin={setMin}
+            setMax={setMax}
+            setAvg={setAvg}
+          />
         </div>
         {/* data type component */}
         <div className="sm:w-[95%] w-[100%] pt-2">
           <div className="flex justify-between">
             <div className="flex h-fit">
               <p className="p-2 mr-2 border-primary border rounded-[8px] text-t3">
-                Min: 20
+                Min: {min}
               </p>
               <p className="p-2 mr-2 border-primary border rounded-[8px] text-t3">
-                Max: 20
+                Max: {max}
               </p>
               <p className="p-2 border-primary border rounded-[8px] text-t3">
-                Average: 20
+                Average: {avg}
               </p>
             </div>
             <button
@@ -122,7 +136,7 @@ const LoRaData = () => {
         </div>
         {/* change log */}
         <div className="w-full my-8">
-          <ChangeLog />
+          <ChangeLog alertList={alertList} />
         </div>
       </div>
     </div>

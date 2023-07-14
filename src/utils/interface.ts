@@ -109,3 +109,10 @@ export interface SensorProps {
   nodeBelongName: string;
   nodeBelongCode: string;
 }
+
+export interface AlertProps {
+  id: string;
+  content: string;
+  isRead: boolean;
+  createdDate: string;
+}
